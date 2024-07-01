@@ -1,0 +1,13 @@
+ex001.c
+ex001.exe
+ex001.obj
+ex002.c
+ex002.exe
+ex002.obj
+ex004.c
+ex004.exe
+ex004.obj
+ex005.c
+ex005.exe
+ex005.obj
+list.txt

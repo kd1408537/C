@@ -38,16 +38,65 @@ enum bitstate
 	paralysis = 1 << 2,
 	burn = 1 << 3,
 	atkup = 1 << 4,
-	atkdown = 1 << 5
+	atkdown = 1 << 5,
+	Dead=1<<6,  //dead flag
+	Atk_Skill=1<<7 //このフラグがonのキャラしか異常状態を付加できない
 };
+
+int turncount = 0;
 
 typedef unsigned int UINT;
 void displaystatus(UINT s);
 void changeflag(UINT* s);
 void clearflag(UINT* s);
+void Displaystatus(UINT* s);
 
-main()
+//戦闘モードを移行する
+void BattleMode(Chara* c, Mob m);
+//戦闘時のメニュー表示
+int DisplayMenu(void);
+//スキル使用時のメニュー
+int SkillMenu(Chara c);
+//攻撃側と防御側のバラメータを使った攻撃ダメージ計算
+int DamageCalc(Spec sp1, Spec sp2);
+//hp計算と死亡判定
+void BattlemESSAGE(Spec sp1, Spec* sp2);
+
+main(int argc, char *argv[])
 {
+	srand(time(0));
+	//           name     hp  atk   def state maxhp mp
+	Chara chara = { "主人公",2000,200,100,Base,2000,150 ,
+		// sk.name type usemp effect
+		{{"hp回復",0,50,800},
+		 {"攻撃力アップ",1,50,120},
+		 {"状態異常回復",2,20,0}} };
+	Mob mob[Mob_Num] = {
+		//name hp atk def state             rate%
+		{"敵a",700,150,800,poison | Atk_Skill,30}
+		{ "敵b",1500,200,200,burn | Atk_Skill,30 }
+		{ "ボス",5000,200,80,atkdown | Atk_Skill,10 } };
+
+	//乱数で0~mob_num-1の数値を求める
+	int num = rand() % Mob_num;
+	//実行時にコマンドライン引数があった
+	if(arg > 1) {
+		//引数を数値に変換
+		num = atoi(argv[1]);
+		//引数の数値が0~MOB_NUM-1の範囲になければ
+		if (num < 0 || num >= Mob_num)
+		{
+			num = rand() % Mob_num;
+		}
+	}
+	//戦闘モードを開始
+	BattleMode(&chara, mob[num]);
+	if(chara.sp.state & Dead) {
+		printf("%sの死亡によりゲームオーバー\n", chara.sp.name);
+	}
+}
+	
+	
 	UINT MyState = base;
 	displaystatus(MyState);
 	changeflag(&MyState);
